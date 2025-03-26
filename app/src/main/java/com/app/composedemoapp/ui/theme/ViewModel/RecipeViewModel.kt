@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.composedemoapp.ui.theme.Model.RecipeItem
 import com.app.composedemoapp.ui.theme.Model.ResipeResponse
+import com.app.composedemoapp.ui.theme.Repository.DetailedRecipeResponse
 import com.app.composedemoapp.ui.theme.Repository.RecipeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -17,13 +18,27 @@ sealed class UiState<out T> {
     data class Success<T>(val data: T) : UiState<T>()
     data class Error(val message: String) : UiState<Nothing>()
 }
+
 @HiltViewModel
 class RecipeViewModel @Inject constructor(private val repo: RecipeRepository) : ViewModel() {
     private val _recipeState = MutableLiveData<UiState<List<RecipeItem>>>()
     val recipeState: LiveData<UiState<List<RecipeItem>>> = _recipeState
 
+    private val _countryList = MutableLiveData<UiState<List<String>>>()
+    val countryList: LiveData<UiState<List<String>>> = _countryList
+
+    private val _recipeTitle = MutableLiveData<UiState<String>>()
+    val recipeTitle: LiveData<UiState<String>> = _recipeTitle
+
+    fun getRecipeTitle() {
+        _recipeTitle.value = UiState.Loading
+        viewModelScope.launch {
+            _recipeTitle.value = repo.fetchRecipeTitle()
+        }
+    }
+
     fun getRandomeRecipes() {
-            _recipeState.value = UiState.Loading
+        _recipeState.value = UiState.Loading
         viewModelScope.launch {
             try {
                 val response: Response<ResipeResponse> = repo.getRecipes()
@@ -48,5 +63,11 @@ class RecipeViewModel @Inject constructor(private val repo: RecipeRepository) : 
         }
 
 
+    }
+
+    fun getCountry() {
+        // delay(10000)
+        val countries = repo.getCountry()
+        _countryList.value = UiState.Success(countries)
     }
 }

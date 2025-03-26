@@ -2,6 +2,7 @@ package com.app.composedemoapp.ui.theme.Screen
 
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +67,7 @@ import com.app.composedemoapp.ui.theme.Grey4
 import com.app.composedemoapp.ui.theme.Model.RecipeItem
 import com.app.composedemoapp.ui.theme.Purple60
 import com.app.composedemoapp.ui.theme.RateBadgeColor
+import com.app.composedemoapp.ui.theme.Repository.DetailedRecipeResponse
 import com.app.composedemoapp.ui.theme.Secondary40
 import com.app.composedemoapp.ui.theme.ViewModel.RecipeViewModel
 import com.app.composedemoapp.ui.theme.ViewModel.UiState
@@ -74,12 +77,31 @@ import com.app.composedemoapp.ui.theme.textColor
 @Composable
 fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
     var recipes: List<RecipeItem> = ArrayList()
+    var countries: List<String> = ArrayList()
+    val recipeTitle by viewModel.recipeTitle.observeAsState("Loading...")
+
     //val viewModel = RecipeViewModel()
     var searchText by remember { mutableStateOf("") }
     val uiState by viewModel.recipeState.observeAsState(UiState.Loading)
+    val uiStateCountries by viewModel.countryList.observeAsState(UiState.Loading)
+    val detailedRcipeState by viewModel.recipeTitle.observeAsState(UiState.Loading)
+
     LaunchedEffect(Unit) {
         viewModel.getRandomeRecipes()
+        viewModel.getCountry()
+        viewModel.getRecipeTitle()
     }
+    when (detailedRcipeState) {
+        is UiState.Loading -> CircularProgressIndicator()
+        is UiState.Success -> {
+            Log.d("TAG","success detailed $detailedRcipeState ")
+        }
+        is UiState.Error -> Text(
+            text = (detailedRcipeState as UiState.Error).message,
+            color = Color.Red
+        )
+    }
+
 
     when (uiState) {
         is UiState.Loading -> {
@@ -89,6 +111,8 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
         }
 
         is UiState.Success -> {
+            Log.d("RecipeScreen", "Recipe loaded")
+
             recipes = (uiState as UiState.Success<List<RecipeItem>>).data
              //ShowRecipes(recipes = recipes)
            // Toast.makeText(LocalContext.current, "Hello from Compose!", Toast.LENGTH_SHORT).show()
@@ -103,6 +127,20 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
             }
         }
     }
+    when(uiStateCountries) {
+        is UiState.Error ->  Toast.makeText(LocalContext.current, "Not found!", Toast.LENGTH_SHORT).show()
+        is UiState.Loading ->
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        is UiState.Success -> {
+
+            countries = (uiStateCountries as UiState.Success<List<String>>).data
+            Log.d("RecipeScreen", "Country loaded")
+
+        }
+    }
 
 
     Column(
@@ -113,8 +151,6 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
             .padding(top = 50.dp, start = 10.dp, end = 10.dp)
     ) {
         ShowHeader()
-
-
 
         Spacer(modifier = Modifier.padding(bottom = 10.dp))
 
@@ -153,15 +189,16 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
         }
 
 
-        val countryList = listOf("All", "India", "China", "Japan", "United State", "United Kingdom")
         Spacer(modifier = Modifier.padding(top = 10.dp))
         // Filtered Recipe List
         val filteredRecipes = recipes.filter {
             it.title.contains(searchText, ignoreCase = true)
         }
-        ShowCountryList(it = countryList)
+        ShowCountryList(it = countries)
         ShowRecipes(recipes = filteredRecipes)
     }
+
+
 }
 
 @Composable

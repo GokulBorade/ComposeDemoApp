@@ -1,6 +1,7 @@
 package com.app.composedemoapp.ui.theme.retrofit
 
 import com.app.composedemoapp.ui.theme.Model.ResipeResponse
+import com.app.composedemoapp.ui.theme.Repository.DetailedRecipeResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -8,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,6 +23,9 @@ interface RecipeApiInterface {
     suspend fun getAllRecipe(
         @Query("number") number: Int = 100
     ): Response<ResipeResponse>
+
+    @GET("/recipes/715415/information")
+    suspend fun getRecipeById() : Response<DetailedRecipeResponse>
 }
 
 @Module

@@ -97,4 +97,6 @@ dependencies {
     // Hilt for Jetpack Compose
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
