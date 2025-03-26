@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ComposeDemoApp</string>
+    <string name="hello_gokul">Hello Gokul</string>
+    <string name="what_are_you_cooking_today">What are you cooking today?</string>
+    <string name="profile_icon">Profile Icon</string>
+    <string name="time">Time</string>
+    <string name="filter_icon">Filter Icon</string>
+    <string name="food_image">Food Image</string>
+    <string name="rating">Rating</string>
+</resources>
