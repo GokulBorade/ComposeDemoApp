@@ -72,15 +72,13 @@ import com.app.composedemoapp.ui.theme.Secondary40
 import com.app.composedemoapp.ui.theme.ViewModel.RecipeViewModel
 import com.app.composedemoapp.ui.theme.ViewModel.UiState
 import com.app.composedemoapp.ui.theme.textColor
-
-@Preview(showBackground = true)
 @Composable
-fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
+fun DashboardUI(viewModel: RecipeViewModel = hiltViewModel()) {
+//fun DashboardUI(viewModel: RecipeViewModel? = null)) {
     var recipes: List<RecipeItem> = ArrayList()
     var countries: List<String> = ArrayList()
     val recipeTitle by viewModel.recipeTitle.observeAsState("Loading...")
 
-    //val viewModel = RecipeViewModel()
     var searchText by remember { mutableStateOf("") }
     val uiState by viewModel.recipeState.observeAsState(UiState.Loading)
     val uiStateCountries by viewModel.countryList.observeAsState(UiState.Loading)
@@ -114,8 +112,6 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
             Log.d("RecipeScreen", "Recipe loaded")
 
             recipes = (uiState as UiState.Success<List<RecipeItem>>).data
-             //ShowRecipes(recipes = recipes)
-           // Toast.makeText(LocalContext.current, "Hello from Compose!", Toast.LENGTH_SHORT).show()
             Log.d("RecipeScreen", "Recipe List: ${recipes.size}")
         }
 
@@ -134,8 +130,8 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        is UiState.Success -> {
 
+        is UiState.Success -> {
             countries = (uiStateCountries as UiState.Success<List<String>>).data
             Log.d("RecipeScreen", "Country loaded")
 
@@ -147,8 +143,7 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
         modifier = Modifier
             .background(color = Color.White)
             .wrapContentSize()
-            //.padding(WindowInsets.statusBars.asPaddingValues()) // Moves content below the status bar
-            .padding(top = 50.dp, start = 10.dp, end = 10.dp)
+            .padding(top = 10.dp, start = 10.dp, end = 10.dp)
     ) {
         ShowHeader()
 
@@ -197,8 +192,6 @@ fun Prev(viewModel: RecipeViewModel = hiltViewModel()) {
         ShowCountryList(it = countries)
         ShowRecipes(recipes = filteredRecipes)
     }
-
-
 }
 
 @Composable
@@ -235,10 +228,17 @@ fun ShowHeader() {
 
 
     }}
-
+val countryCuisineMap = mapOf(
+    "All" to null,  // No filter applied
+    "India" to "Indian",
+    "China" to "Chinese",
+    "Japan" to "Japanese",
+    "United States" to "American",
+    "United Kingdom" to "British"
+)
 
 @Composable
-fun ShowCountryList(it: List<String>) {
+fun ShowCountryList(it: List<String>,viewModel: RecipeViewModel = hiltViewModel()) {
     var selectedCountry by remember {
         mutableStateOf<String?>("All")
     }
@@ -249,6 +249,7 @@ fun ShowCountryList(it: List<String>) {
             Box(modifier = Modifier
                 .clickable {
                     selectedCountry = it
+                    viewModel.getRandomeRecipes(countryCuisineMap[it])
                 }
                 .background(
                     if (it == selectedCountry) Purple60 else Color.White, RoundedCornerShape(10.dp)
@@ -404,7 +405,8 @@ fun ShowRecipeItem(item: RecipeItem) {
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun DashboardScreen(navController: NavController) {
-    Prev()
+fun DashboardScreen() {
+    DashboardUI()
 }

@@ -37,30 +37,40 @@ class RecipeViewModel @Inject constructor(private val repo: RecipeRepository) : 
         }
     }
 
-    fun getRandomeRecipes() {
-        _recipeState.value = UiState.Loading
-        viewModelScope.launch {
-            try {
-                val response: Response<ResipeResponse> = repo.getRecipes()
+    fun getRandomeRecipes(country : String ?= null) {
+       //if( _recipeState.value == null) {
+           _recipeState.value = UiState.Loading
+           viewModelScope.launch {
+               try {
+                   val response: Response<ResipeResponse> = if(country.isNullOrEmpty()) {
 
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        _recipeState.value = UiState.Success(body.results)
-                    } else {
-                        _recipeState.value = UiState.Error("Empty response body")
-                    }
-                } else {
-                    // Handle API error (like 404, 500)
-                    val errorMessage = response.errorBody()?.string() ?: "Unknown API error"
-                    _recipeState.value = UiState.Error("Error : $errorMessage")
-                }
+                       repo.getRecipes()
 
-            } catch (e: Exception) {
-                // Handle exceptions (like no internet, timeout)
-                _recipeState.value = UiState.Error(e.localizedMessage ?: "An error occurred")
-            }
-        }
+                   } else {
+                       repo.getRecipesByCountry(country)
+
+                   }
+
+
+                   if (response.isSuccessful) {
+                       val body = response.body()
+                       if (body != null) {
+                           _recipeState.value = UiState.Success(body.results)
+                       } else {
+                           _recipeState.value = UiState.Error("Empty response body")
+                       }
+                   } else {
+                       // Handle API error (like 404, 500)
+                       val errorMessage = response.errorBody()?.string() ?: "Unknown API error"
+                       _recipeState.value = UiState.Error("Error : $errorMessage")
+                   }
+
+               } catch (e: Exception) {
+                   // Handle exceptions (like no internet, timeout)
+                   _recipeState.value = UiState.Error(e.localizedMessage ?: "An error occurred")
+               }
+           }
+     //  }
 
 
     }

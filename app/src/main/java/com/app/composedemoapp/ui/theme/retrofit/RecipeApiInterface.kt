@@ -26,6 +26,12 @@ interface RecipeApiInterface {
 
     @GET("/recipes/715415/information")
     suspend fun getRecipeById() : Response<DetailedRecipeResponse>
+
+    @GET("/recipes/complexSearch")
+    suspend fun getRecipesByCountry(
+        @Query("cuisine") cuisine : String ,
+        @Query("number") number: Int = 100
+    ) : Response<ResipeResponse>
 }
 
 @Module
@@ -33,7 +39,8 @@ interface RecipeApiInterface {
 object AppModule {
 
     private const val BASE_URL = "https://api.spoonacular.com/"
-    private const val API_KEY = "87f2a1d29b1c4c62b0e99a47791dbc09"
+    //private const val API_KEY = "87f2a1d29b1c4c62b0e99a47791dbc09"
+    private const val API_KEY = "cf4c34102324460283c75ae75c07ca52"
 
     @Provides
     @Singleton

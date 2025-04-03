@@ -30,6 +30,9 @@ class RecipeRepository @Inject constructor(private val api: RecipeApiInterface) 
     suspend fun getRecipes(): Response<ResipeResponse> {
         return api.getAllRecipe()
     }
+    suspend fun getRecipesByCountry(country:  String): Response<ResipeResponse> {
+        return api.getRecipesByCountry(country)
+    }
 
 
      fun getCountry() : List<String>{
